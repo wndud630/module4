@@ -6,14 +6,15 @@
   <title>360도 이미지 회전</title>
   <style>
     #product360 {
-      width: 100%;
-      height: 100%; /* 높이는 필요에 따라 조정 */
-      position: relative;
+      display: flex; /* 내부 아이템들을 flexbox로 배치 */
+      justify-content: center; /* 콘텐츠를 가운데 정렬 */
+      gap: 0; /* 캔버스 사이의 간격 제거 */
+      margin: 0 auto; /* 전체 컨테이너 가운데 정렬 */
+      flex-wrap: wrap; /* 화면 크기에 따라 자동 줄바꿈 */
     }
     canvas {
       width: 100%;
-      height: 100%;
-      display: block;
+      height: 500px;
     }
   </style>
 </head>
