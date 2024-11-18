@@ -6,23 +6,14 @@
   <title>360도 이미지 회전</title>
   <style>
     #product360 {
-      display: flex; /* 내부 아이템들을 flexbox로 배치 */
-      justify-content: center; /* 콘텐츠를 가운데 정렬 */
-      gap: 0; /* 캔버스 사이의 간격 제거 */
-      margin: 0 auto; /* 전체 컨테이너 가운데 정렬 */
-      flex-wrap: wrap; /* 화면 크기에 따라 자동 줄바꿈 */
+      width: 50%;
+      height: 50%; /* 높이는 필요에 따라 조정 */
+      position: relative;
     }
-        .canvas-container {
-      width: 100%; /* 기본적으로 화면 전체 너비를 사용 */
-      max-width: 500px; /* 최대 크기를 설정 */
-      aspect-ratio: 1 / 1; /* 정사각형 비율을 유지 */
-      overflow: hidden; /* 넘치는 부분은 잘림 */
-    }
-    
     canvas {
       width: 100%;
-      height: 100%px;
-          display: block;
+      height: 100%;
+      display: block;
     }
   </style>
 </head>
@@ -142,12 +133,12 @@
     'https://cdn.imweb.me/thumbnail/20241111/963c356ee04df.jpg'
       ];
 
-      let currentIndex  = Math.floor(images.length / 2); // 중간 이미지부터 시작
+      let currentIndex = Math.floor(images.length / 2); // 중간 이미지부터 시작
       let isDragging = false;
       let startX;
       const rotationFactor = 1; // 회전 속도 조절 인자
 
-      // 캔버스 크기 설정 (실제 이미지 사이즈에 맞추기!!!)
+      // 캔버스 크기 설정
       canvas.width = 1000;  // 너비 설정
       canvas.height = 1000; // 높이 설정
 
@@ -167,36 +158,36 @@
       });
 
       // 이미지 그리기
-function drawImage() {
+      function drawImage() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(imgElements[currentIndex], 0, 0, canvas.width, canvas.height);
       }
- 
-// 마우스가 캔버스로 들어올 때 커서 이미지 변경
+
+      // 마우스가 캔버스로 들어올 때 커서 이미지 변경
       canvas.addEventListener('mouseenter', () => {
-        canvas.style.cursor = url(https://cdn.imweb.me/thumbnail/20241111/cd03d21ffa98d.png), auto;
+        canvas.style.cursor = `url(https://cdn.imweb.me/thumbnail/20241111/cd03d21ffa98d.png), auto`;
       });
 
-      // 드래그 이벤트 처리		   
-  canvas.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    startX = e.clientX;
-  });
+      // 드래그 이벤트 처리
+      canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+      });
 
-  document.addEventListener('mouseup', (e) => {
-    isDragging = false;
-  });
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
 
-  document.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-      const dx = e.clientX - startX;
-      const numImages = imgElements.length;
-      const step = Math.round((dx / canvas.width) * numImages * rotationFactor);
-      currentIndex = (currentIndex + step + numImages) % numImages;
-      drawImage();
-      startX = e.clientX;
-    }
-  });
+      document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          const dx = e.clientX - startX;
+          const numImages = imgElements.length;
+          const step = Math.round((dx / canvas.width) * numImages * rotationFactor);
+          currentIndex = (currentIndex + step + numImages) % numImages;
+          drawImage();
+          startX = e.clientX;
+        }
+      });
 
       // 터치 이벤트
       canvas.addEventListener('touchstart', (e) => {
@@ -204,9 +195,8 @@ function drawImage() {
         startX = e.touches[0].clientX;
       });
 
-      canvas.addEventListener('touchend', (e) => {
+      canvas.addEventListener('touchend', () => {
         isDragging = false;
-        lastDx = e.changedTouches[0].clientX - startX;
       });
 
       canvas.addEventListener('touchmove', (e) => {
