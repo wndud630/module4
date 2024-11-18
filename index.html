@@ -148,13 +148,14 @@
       images.forEach((src, index) => {
         const img = new Image();
         img.src = src;
-        img.onload = () => {
-          imgElements[index] = img;
-          imagesLoaded++;
-          if (imagesLoaded === images.length) {
-            drawImage();
-          }
-        };
+img.onload = () => {
+  imgElements[index] = img;
+  imagesLoaded++;
+  console.log(`Image loaded: ${index}`); // 이미지 로드 확인
+  if (imagesLoaded === images.length) {
+    drawImage();
+  }
+};
       });
 
       // 이미지 그리기
