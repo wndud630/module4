@@ -6,18 +6,14 @@
   <title>360도 이미지 회전</title>
   <style>
     #product360 {
-      width: '100%';
-      height: '100%'; /* 필요에 따라 높이를 조정 */
+      width: 100%;
+      height: 100%; /* 필요에 따라 높이를 조정 */
       position: relative;
       display: flex; /* 플렉스 박스 활성화 */
       justify-content: center; /* 가로 중앙 정렬 */
       align-items: center; /* 세로 중앙 정렬 */
     }
     canvas {
-	width: '100%'; 
-	    height: '100%';
-	    max-width: 300px; /* 최대 크기를 설정 */
-	    max-height: 300px; /* 최대 크기를 설정 */
       display: block;
     }
   </style>
@@ -36,31 +32,39 @@
       
       // 이미지 파일들
 const images = [];
-for (let i = 40001; i <= 40100; i++) {
-  images.push(`https://raw.githubusercontent.com/builddweller/bvs1_image/main/Module_4/${i}.jpg`);
+for (let i = 10001; i <= 10100; i++) {
+  images.push(`https://raw.githubusercontent.com/builddweller/bvs1_image/main/Module_1/${i}.jpg`);
 }
+
 
       let currentIndex = Math.floor(images.length / 2); // 중간 이미지부터 시작
       let isDragging = false;
       let startX;
       const rotationFactor = 1; // 회전 속도 조절 인자
 
-            // 이미지 로드
-      const imgElements = [];
-      let imgWidth = 0, imgHeight = 0;
-      let imagesLoaded = 0;
+	          // 캔버스 크기 설정
+      canvas.width = 1000;  // 너비 설정
+      canvas.height = 1000; // 높이 설정
+	    
+      // 원본 이미지의 비율을 계산할 변수
+      let imgWidth, imgHeight;
 
+      // 이미지 로드
+      const imgElements = [];
+      let imagesLoaded = 0;
       images.forEach((src, index) => {
         const img = new Image();
         img.src = src;
         img.onload = () => {
           imgElements[index] = img;
           imagesLoaded++;
+          console.log(`Image loaded: ${index}`); // 이미지 로드 확인
           
+          // 첫 번째 이미지를 로드했을 때 이미지의 비율을 계산
           if (imagesLoaded === images.length) {
             imgWidth = imgElements[0].width;
             imgHeight = imgElements[0].height;
-            resizeCanvas();
+            resizeCanvas(); // 캔버스 크기 조정
             drawImage();
           }
         };
@@ -69,39 +73,25 @@ for (let i = 40001; i <= 40100; i++) {
       // 이미지 그리기
       function drawImage() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        const aspectRatio = imgWidth / imgHeight;
-        let drawWidth, drawHeight;
-        
-        if (canvas.width / canvas.height > aspectRatio) {
-          drawHeight = canvas.height;
-          drawWidth = drawHeight * aspectRatio;
-        } else {
-          drawWidth = canvas.width;
-          drawHeight = drawWidth / aspectRatio;
-        }
-
-        const offsetX = (canvas.width - drawWidth) / 2;
-        const offsetY = (canvas.height - drawHeight) / 2;
-
-        ctx.drawImage(imgElements[currentIndex], offsetX, offsetY, drawWidth, drawHeight);
+        ctx.drawImage(imgElements[currentIndex], 0, 0, canvas.width, canvas.height);
       }
 
-      // 캔버스 크기 설정
+      // 창 크기 조정 시 캔버스 크기 조정 (비율 유지)
       function resizeCanvas() {
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
-
-        // 고해상도 지원을 위해 캔버스 크기 조정
-        canvas.width = windowWidth * window.devicePixelRatio;
-        canvas.height = windowHeight * window.devicePixelRatio;
-
-        canvas.style.width = `${windowWidth}px`;
-        canvas.style.height = `${windowHeight}px`;
-
-        drawImage(); // 크기 조정 후 이미지 다시 그리기
+        
+        // 원본 이미지 비율에 맞게 크기 계산
+        const aspectRatio = imgWidth / imgHeight;
+        if (windowWidth / windowHeight > aspectRatio) {
+          canvas.width = windowHeight * aspectRatio;
+          canvas.height = windowHeight;
+        } else {
+          canvas.width = windowWidth;
+          canvas.height = windowWidth / aspectRatio;
+        }
       }
-	  
+
       // 마우스가 캔버스로 들어올 때 커서 이미지 변경
       canvas.addEventListener('mouseenter', () => {
         canvas.style.cursor = `url(https://cdn.imweb.me/thumbnail/20241111/cd03d21ffa98d.png), auto`;
@@ -122,7 +112,10 @@ for (let i = 40001; i <= 40100; i++) {
           const dx = e.clientX - startX;
           const numImages = imgElements.length;
           const step = Math.round((dx / canvas.width) * numImages * rotationFactor);
-          currentIndex = (currentIndex + step + numImages) % numImages;
+          
+          // 이미지가 순환되지 않도록 제한
+          currentIndex = Math.min(Math.max(currentIndex + step, 0), numImages - 1);
+          
           drawImage();
           startX = e.clientX;
         }
@@ -143,12 +136,23 @@ for (let i = 40001; i <= 40100; i++) {
           const dx = e.touches[0].clientX - startX;
           const numImages = imgElements.length;
           const step = Math.round((dx / canvas.width) * numImages * rotationFactor);
-          currentIndex = (currentIndex + step + numImages) % numImages;
+          
+          // 이미지가 순환되지 않도록 제한
+          currentIndex = Math.min(Math.max(currentIndex + step, 0), numImages - 1);
+          
           drawImage();
           startX = e.touches[0].clientX;
         }
       });
-     // 창 크기 조정 시 캔버스 크기 조정
+
+	          // ResizeObserver로 부모 요소 크기 감지
+      const resizeObserver = new ResizeObserver(() => {
+        resizeCanvas();
+        drawImage();
+      });
+      resizeObserver.observe(canvas.parentElement);
+	    
+	       // 창 크기 조정 시 캔버스 크기 조정
       window.addEventListener('resize', () => {
         resizeCanvas();
         drawImage(); // 크기 변경 시 이미지 다시 그리기
