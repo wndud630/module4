@@ -37,7 +37,7 @@
       let currentIndex = Math.floor(images.length / 2); // 중간 이미지부터 시작
       let isDragging = false;
       let startX;
-      const rotationFactor = 1; // 회전 속도 조절 인자
+      const rotationFactor = 2; // 회전 속도 조절 인자
 
       // 이미지 로드
       const imgElements = [];
@@ -96,12 +96,12 @@
         drawImage(); // 크기 조정 후 이미지 다시 그리기
       }
 	  
-	   // 마우스가 캔버스로 들어올 때 커서 이미지 변경
+      // 마우스가 캔버스로 들어올 때 커서 이미지 변경
       canvas.addEventListener('mouseenter', () => {
         canvas.style.cursor = `url(https://cdn.imweb.me/thumbnail/20241111/cd03d21ffa98d.png), auto`;
       });
 
-      // 마우스 드래그 이벤트 처리
+      // 드래그 이벤트 처리
       canvas.addEventListener('mousedown', (e) => {
         isDragging = true;
         startX = e.clientX;
@@ -114,15 +114,18 @@
       document.addEventListener('mousemove', (e) => {
         if (isDragging) {
           const dx = e.clientX - startX;
-          const step = Math.round((dx / canvas.width) * images.length * rotationFactor);
+          const numImages = imgElements.length;
+          const step = Math.round((dx / canvas.width) * numImages * rotationFactor);
           
-          currentIndex = (currentIndex + step + images.length) % images.length; // 순환
+          // 이미지가 순환되지 않도록 제한
+          currentIndex = Math.min(Math.max(currentIndex + step, 0), numImages - 1);
+          
           drawImage();
           startX = e.clientX;
         }
       });
 
-      // 터치 이벤트 처리
+      // 터치 이벤트
       canvas.addEventListener('touchstart', (e) => {
         isDragging = true;
         startX = e.touches[0].clientX;
@@ -135,14 +138,16 @@
       canvas.addEventListener('touchmove', (e) => {
         if (isDragging) {
           const dx = e.touches[0].clientX - startX;
-          const step = Math.round((dx / canvas.width) * images.length * rotationFactor);
+          const numImages = imgElements.length;
+          const step = Math.round((dx / canvas.width) * numImages * rotationFactor);
           
-          currentIndex = (currentIndex + step + images.length) % images.length; // 순환
+          // 이미지가 순환되지 않도록 제한
+          currentIndex = Math.min(Math.max(currentIndex + step, 0), numImages - 1);
+          
           drawImage();
           startX = e.touches[0].clientX;
         }
       });
-
       // 창 크기 조정 이벤트
       window.addEventListener('resize', resizeCanvas);
     });
