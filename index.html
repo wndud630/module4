@@ -6,41 +6,42 @@
   <title>360도 이미지 회전</title>
   <style>
     #product360 {
-      width: 100%;
-      height: 100%;
+      width: '100%';
+      height: '100%'; /* 필요에 따라 높이를 조정 */
       position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      display: flex; /* 플렉스 박스 활성화 */
+      justify-content: center; /* 가로 중앙 정렬 */
+      align-items: center; /* 세로 중앙 정렬 */
     }
     canvas {
-	    width: 100%;
       display: block;
     }
   </style>
 </head>
 <body>
+  <!-- 360도 이미지를 표시할 div -->
   <div id="product360">
     <canvas id="canvas"></canvas>
   </div>
 
+  <!-- 360도 이미지 회전 효과를 구현하는 자바스크립트 코드 -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const canvas = document.getElementById('canvas');
       const ctx = canvas.getContext('2d');
       
-      // 이미지 파일 배열
-      const images = [];
-      for (let i = 40001; i <= 40100; i++) {
-        images.push(`https://raw.githubusercontent.com/builddweller/bvs1_image/main/Module_4/${i}.jpg`);
-      }
+      // 이미지 파일들
+const images = [];
+for (let i = 40001; i <= 40100; i++) {
+  images.push(`https://raw.githubusercontent.com/builddweller/bvs1_image/main/Module_4/${i}.jpg`);
+}
 
       let currentIndex = Math.floor(images.length / 2); // 중간 이미지부터 시작
       let isDragging = false;
       let startX;
-      const rotationFactor = 2; // 회전 속도 조절 인자
+      const rotationFactor = 1; // 회전 속도 조절 인자
 
-      // 이미지 로드
+            // 이미지 로드
       const imgElements = [];
       let imgWidth = 0, imgHeight = 0;
       let imagesLoaded = 0;
@@ -117,10 +118,7 @@
           const dx = e.clientX - startX;
           const numImages = imgElements.length;
           const step = Math.round((dx / canvas.width) * numImages * rotationFactor);
-          
-          // 이미지가 순환되지 않도록 제한
-          currentIndex = Math.min(Math.max(currentIndex + step, 0), numImages - 1);
-          
+          currentIndex = (currentIndex + step + numImages) % numImages;
           drawImage();
           startX = e.clientX;
         }
@@ -141,16 +139,16 @@
           const dx = e.touches[0].clientX - startX;
           const numImages = imgElements.length;
           const step = Math.round((dx / canvas.width) * numImages * rotationFactor);
-          
-          // 이미지가 순환되지 않도록 제한
-          currentIndex = Math.min(Math.max(currentIndex + step, 0), numImages - 1);
-          
+          currentIndex = (currentIndex + step + numImages) % numImages;
           drawImage();
           startX = e.touches[0].clientX;
         }
       });
-      // 창 크기 조정 이벤트
-      window.addEventListener('resize', resizeCanvas);
+     // 창 크기 조정 시 캔버스 크기 조정
+      window.addEventListener('resize', () => {
+        resizeCanvas();
+        drawImage(); // 크기 변경 시 이미지 다시 그리기
+      });
     });
   </script>
 </body>
